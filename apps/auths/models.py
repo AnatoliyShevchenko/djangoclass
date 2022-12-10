@@ -59,9 +59,9 @@ class Client(
     balance = models.FloatField(
         default=0.0, verbose_name='баланс'
     )
-    # born_date = models.DateField(
-    #     default=1800-1-1, verbose_name='Дата рождения'
-    # )
+    born_date = models.DateField(
+        auto_now=True, verbose_name='Дата рождения'
+    )
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     object = ClientManager()

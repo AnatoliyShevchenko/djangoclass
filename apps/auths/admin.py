@@ -32,7 +32,8 @@ class ClientAdmin(UserAdmin):
                 'email',
                 'password1',
                 'password2',
-                'is_active'
+                'is_active',
+                'born_date'
             )
         }),
     )
@@ -56,7 +57,7 @@ class ClientAdmin(UserAdmin):
         'is_superuser',
         'is_staff',
         'is_active',
-        # 'born_date'
+        'born_date'
     ]
     ordering = ('email',)
 
