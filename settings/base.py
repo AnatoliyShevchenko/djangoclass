@@ -47,6 +47,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -80,9 +81,6 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-
-
-
 
 INTERNAL_IPS = (
     '127.0.0.1',
