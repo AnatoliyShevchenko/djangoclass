@@ -37,7 +37,7 @@ class ClientManager(BaseUserManager):
 
 class Client(
     AbstractBaseUser,
-    PermissionsMixin,
+    PermissionsMixin
 ):
     """My custom user"""
 
