@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.core.handlers.wsgi import WSGIRequest
+from typing import Optional, Any
 
 # Register your models here.
 from auths.models import Client
@@ -60,5 +62,20 @@ class ClientAdmin(UserAdmin):
         'born_date'
     ]
     ordering = ('email',)
+
+    def get_readonly_fields(self, request: WSGIRequest, obj: Optional[Client] = None):
+        if not obj:
+            return self.readonly_fields
+
+        return self.readonly_fields + ('email',)
+
+    def has_add_permission(self, request: WSGIRequest) -> bool:
+        return True
+
+    def has_change_permission(self, request: WSGIRequest, obj: Any=None) -> bool:
+        return True
+
+    def has_delete_permission(self, request: WSGIRequest, obj: Any=None) -> bool:
+        return True
 
 admin.site.register(Client, ClientAdmin)
