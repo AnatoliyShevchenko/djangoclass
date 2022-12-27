@@ -113,6 +113,7 @@ SHELL_PLUS_MODEL_ALIASES = {
     'main': {
         'Team': 'T',
         'Player': 'P',
+        'Stadium' : 'S',
         'Event': 'E'
     }
 }
