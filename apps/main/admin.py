@@ -14,7 +14,8 @@ class PlayerAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'last_name',
-        'power'
+        'power',
+        'team'
     )
 
     def get_readonly_fields(self, request: WSGIRequest, obj: Optional[Player] = None):
@@ -31,13 +32,14 @@ class TeamAdmin(admin.ModelAdmin):
 
     list_display = (
         'title',
+        'stadium',
     )
 
-    def get_readonly_fields(self, request: WSGIRequest, obj: Optional[Team] = None):
-        if not obj:
-            return self.readonly_fields
+    # def get_readonly_fields(self, request: WSGIRequest, obj: Optional[Team] = None):
+    #     if not obj:
+    #         return self.readonly_fields
 
-        return self.readonly_fields + ('title')
+    #     return self.readonly_fields + ('title')
 
 
 class StadiumAdmin(admin.ModelAdmin):
