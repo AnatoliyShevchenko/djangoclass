@@ -8,16 +8,6 @@ import requests
 from requests.models import Response
 
 
-url = "https://gist.githubusercontent.com/jamesmwali/11b34a6d4c87644915573e54fbd34ac5/raw/93124e101231f8cbf14ff48ca191156059d6c41f/playerlist.json"
-r: Response = requests.get(url)
-data = r.json()
-
-team = []
-for element in data:
-    team.append(element.get("team"))
-teams = set(team)
-
-
 class Command(BaseCommand):
     """Custom command for filling up database"""
 
@@ -26,73 +16,76 @@ class Command(BaseCommand):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         pass
 
-    def generate_players(self) -> None:
+    def generate_teams_and_stadiums(self) -> None:
 
-        # PLAYERS_COUNT: int = 250
-        MAX_POWER: int = 99
-        MIN_POWER: int = 30
-        MAX_AGE: int = 40
-        MIN_AGE: int = 17
-        
-        res = Player.objects.count()
-        sum = len(data) - res
-        if res < sum:
-            for element in data:
-                try:
-                    Player.objects.create(
-                        name=element.get("first_name"),
-                        last_name=element.get("last_name"),
-                        power=random.randrange(MIN_POWER, MAX_POWER),
-                        age=random.randrange(MIN_AGE, MAX_AGE)
-                    )
-                except:
-                    Player.objects.create(
-                        name=names.get_first_name(gender='Male'),
-                        last_name=element.get("last_name"),
-                        power=random.randrange(MIN_POWER, MAX_POWER),
-                        age=random.randrange(MIN_AGE, MAX_AGE)
-                    )
-        print("Хватит уже игроков")
+        countries_url: str = (
+            'https://raw.githubusercontent.com/annexare/Countries/master/data/'
+            'countries.json'
+        )
+        clubs_url: str = (
+            'https://raw.githubusercontent.com/openfootball/football.json/maste'
+            'r/2020-21/{}.1.clubs.json'
+        )
+        leagues: tuple[str, ...] = (
+            'en',
+            'es',
+            'it'
+        )
+        country_objs: dict[str, Any] = requests.get(countries_url).json()
+        countries: dict[str, dict[str, Any]] = {}
+        _: str
+        data: dict[str, Any]
+        for _, data in country_objs.items():
+            countries[data['name']] = data['capital']
 
-    def generate_stadium(self) -> None:
+        league: str
+        for league in leagues:
+            url: str = clubs_url.format(league)
 
-        STADIUM_COUNT: int = 19
-        MAX_SIZE: int = 99
-        MIN_SIZE: int = 30
-        
-        _: int
-        res = Stadium.objects.count()
-        sum = STADIUM_COUNT - res
-        if res < STADIUM_COUNT:
-            for _ in range(sum):
-                Stadium.objects.create(
-                    name=names.get_first_name(gender='male'),
-                    city=names.get_last_name(),
-                    perimetr=random.randint(MIN_SIZE, MAX_SIZE)
+            response: Response = requests.get(url)
+            if response.status_code != 200:
+                print('Error')
+                return
+
+            data: dict[str, str | list[dict[str, str]]] = response.json()
+            obj: dict[str, str]
+            for obj in data['clubs']:
+                capital: str = countries.get(
+                    obj['country'],
+                    'Unknown'
                 )
-        print('хватит уже стадионов')
-
-    def generate_teams(self) -> None:
-
-        TEAMS_COUNT: int = 19
-        PLAYERS: int = 11
-
-        res = Team.objects.count()
-        sum = len(data) - res
-        if res < sum:
-            for i in teams:
-                Team.objects.create(
-                    title=i
+                stadium: Stadium
+                _: bool
+                stadium, _ = Stadium.objects.get_or_create(
+                    name=f'{obj["code"]} Stadium',
+                    perimetr=random.randrange(
+                        100,
+                        1000,
+                        50
+                    ),
+                    city=capital
                 )
-        print("хватит уже команд")
+                team : Team
+                _: bool
+                team, _ = Team.objects.get_or_create(
+                    title=obj['name'],
+                    stadium=stadium
+                )
+                for j in range(11):
+                    Player.objects.get_or_create(
+                        name=names.get_first_name(gender='male'),
+                        last_name=names.get_last_name(),
+                        power=random.randrange(30, 99),
+                        age=random.randrange(17, 40),
+                        team=team,
+                    )
+
 
     def handle(self, *args: Any, **kwargs: Any) -> None:
         """Handles data filling."""
 
         start: datetime = datetime.now()
-        self.generate_stadium()
-        self.generate_teams()
-        self.generate_players()
+        self.generate_teams_and_stadiums()
         print(
             f'Generated in: {(datetime.now() - start).total_seconds()}'
         )
